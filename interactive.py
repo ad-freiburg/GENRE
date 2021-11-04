@@ -6,6 +6,6 @@ if __name__ == "__main__":
     print("loaded.")
 
     while True:
-        sentence = input("> ")
-        predicted = model.predict(sentence)
+        text = input("> ")
+        predicted = model.predict_paragraph(text)
         print(predicted)
