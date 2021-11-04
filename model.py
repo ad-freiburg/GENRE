@@ -17,10 +17,17 @@ class Model:
         self._assure_spacy()
         doc = self.spacy_model(text)
         sentences = list(doc.sents)
-        predictions = [self.predict(sent.text) for sent in sentences]
+        predictions = []
+        for sent in sentences:
+            prediction = self.predict(sent.text)
+            print(prediction)
+            predictions.append(prediction)
         return " ".join(predictions)
 
     def predict(self, text: str) -> str:
+        text = text.replace("[", "")
+        text = text.replace("]", "")
+
         sentences = [text]
 
         prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(self.model, sentences)
