@@ -19,7 +19,10 @@ class Model:
         sentences = list(doc.sents)
         predictions = []
         for sent in sentences:
-            prediction = self.predict(sent.text)
+            if len(sent.text.strip()) == 0:
+                prediction = sent.text
+            else:
+                prediction = self.predict(sent.text)
             print(prediction)
             predictions.append(prediction)
         return " ".join(predictions)

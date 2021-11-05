@@ -27,7 +27,7 @@ def main(args):
                 if len(paragraph) == 0:
                     prediction = paragraph
                 else:
-                    prediction = model.predict(paragraph)
+                    prediction = model.predict_paragraph(paragraph)
                     print(prediction)
                 predicted_paragraphs.append(prediction)
 
