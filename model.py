@@ -37,7 +37,11 @@ class Model:
             prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
         )
 
-        text = result[0][0]["text"]
+        try:
+            text = result[0][0]["text"]
+        except:
+            text = text
+
         if isinstance(text, list):
             text = "".join(text)
         return text
