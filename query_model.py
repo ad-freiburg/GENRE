@@ -5,7 +5,7 @@ from get_trie import load_trie
 
 if __name__ == "__main__":
     print("read model...")
-    model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_aidayago").eval()
+    model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
     print("load trie...")
     trie = load_trie()
 
