@@ -7,7 +7,7 @@ from get_trie import load_trie
 
 class Model:
     def __init__(self):
-        self.model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_aidayago").eval()
+        self.model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
         self.trie = load_trie()
         self.spacy_model = None
 

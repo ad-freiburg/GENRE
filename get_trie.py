@@ -31,7 +31,7 @@ def load_trie():
 
 
 if __name__ == "__main__":
-    model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_aidayago").eval()
+    model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
     trie = get_wikipedia_articles_trie(model)
     with open("data/entity_trie.pkl", "wb") as f:
         pickle.dump(trie, f)
