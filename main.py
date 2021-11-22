@@ -20,7 +20,6 @@ def main(args):
             text = text[evaluation_span[0]:evaluation_span[1]]
 
             paragraphs = text.split(PARAGRAPH_SEPARATOR)
-            print(paragraphs)
             predicted_paragraphs = []
 
             for paragraph in paragraphs:
@@ -28,7 +27,7 @@ def main(args):
                     prediction = paragraph
                 else:
                     prediction = model.predict_paragraph(paragraph, args.split_sentences)
-                    print(prediction)
+                    print("PARAGRAPH:", prediction)
                 predicted_paragraphs.append(prediction)
 
             genre_text = before + PARAGRAPH_SEPARATOR.join(predicted_paragraphs) + after

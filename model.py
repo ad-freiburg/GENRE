@@ -37,11 +37,12 @@ class Model:
             sentences = [text]
         predictions = []
         for sent in sentences:
+            print("IN:", sent)
             if len(sent.strip()) == 0:
                 prediction = sent
             else:
                 prediction = self.predict(sent)
-            print(prediction)
+            print("PREDICTION:", prediction)
             predictions.append(prediction)
         return " ".join(predictions)
 
