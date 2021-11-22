@@ -4,7 +4,7 @@ from model import Model
 
 
 def main(args):
-    model = Model()
+    model = Model(yago=args.yago, entities_constrained=args.constrained)
 
     with open(args.output_file, "w") as out_file:
         for line in open(args.input_file):
@@ -27,7 +27,7 @@ def main(args):
                 if len(paragraph) == 0:
                     prediction = paragraph
                 else:
-                    prediction = model.predict_paragraph(paragraph)
+                    prediction = model.predict_paragraph(paragraph, args.split_sentences)
                     print(prediction)
                 predicted_paragraphs.append(prediction)
 
@@ -43,5 +43,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", dest="input_file", type=str)
     parser.add_argument("-o", dest="output_file", type=str)
+    parser.add_argument("--yago", action="store_true")
+    parser.add_argument("--constrained", action="store_true")
+    parser.add_argument("--sentences", "-s", dest="split_sentences", action="store_true")
     args = parser.parse_args()
     main(args)
