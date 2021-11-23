@@ -61,12 +61,13 @@ def main(args):
     else:
         relevant_qids = None
         out_file = "data/entity_trie.tmp.pkl"
-    print("read article titles...")
+    print("\nread article titles...")
     titles = get_wikipedia_article_titles(relevant_qids)
+    print("\nload model...")
     model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
-    print("create trie...")
+    print("\ncreate trie...")
     trie = get_trie(model, titles)
-    print(f"save trie at {out_file}...")
+    print(f"\nsave trie at {out_file}...")
     with open(out_file, "wb") as f:
         pickle.dump(trie, f)
 
