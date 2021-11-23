@@ -8,10 +8,22 @@ from genre.trie import Trie
 from urllib.parse import unquote
 
 
-def get_relevant_entity_qids() -> Set[str]:
+CLASSIC_ENTITY_TYPES = {
+    "Q18336849",  # item with given name property
+    "Q27096213",  # geographic entity
+    "Q43229"  # organization
+}
+
+
+def get_relevant_entity_qids(classic_types: bool = False) -> Set[str]:
     qids = set()
     for line in open("data/qid_to_relevant_types.tsv"):
-        qid = line.split("\t")[0]
+        values = line[:-1].split("\t")
+        qid = values[0]
+        if classic_types:
+            entity_types = set(values[1].split(";"))
+            if len(CLASSIC_ENTITY_TYPES.intersection(entity_types)) == 0:
+                continue
         qids.add(qid)
         if len(qids) % 1000 == 0:
             print(f"\r{len(qids)} QIDs", end="")
@@ -54,10 +66,13 @@ def load_trie():
 
 
 def main(args):
-    if args.types:
+    if args.types or args.classic_types:
         print("read relevant entity qids...")
-        relevant_qids = get_relevant_entity_qids()
-        out_file = "data/entity_trie.relevant_types.pkl"
+        relevant_qids = get_relevant_entity_qids(classic_types=args.classic_types)
+        if args.classic_types:
+            out_file = "data/entity_trie.classic_types.pkl"
+        else:
+            out_file = "data/entity_trie.relevant_types.pkl"
     else:
         relevant_qids = None
         out_file = "data/entity_trie.tmp.pkl"
@@ -75,5 +90,6 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--types", action="store_true")
+    parser.add_argument("--classic_types", action="store_true")
     args = parser.parse_args()
     main(args)
