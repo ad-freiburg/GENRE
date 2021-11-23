@@ -59,8 +59,17 @@ def get_trie(model, article_titles: List[str]) -> Trie:
     return trie
 
 
-def load_trie():
-    with open("data/entity_trie.pkl", "rb") as f:
+def load_trie(types: Optional[str] = None):
+    if types == "whitelist":
+        trie_file = "data/entity_trie.whitelist_types.pkl"
+    elif types == "classic":
+        trie_file = "data/entity_trie.classic_types.pkl"
+    elif types is None:
+        trie_file = "data/entity_trie.pkl"
+    else:
+        raise Exception("ERROR: unknown entity type specification '%s', choose from {'whitelist', 'classic', None}."
+                        % types)
+    with open(trie_file, "rb") as f:
         trie = pickle.load(f)
     return trie
 
@@ -72,15 +81,15 @@ def main(args):
         if args.classic_types:
             out_file = "data/entity_trie.classic_types.pkl"
         else:
-            out_file = "data/entity_trie.relevant_types.pkl"
+            out_file = "data/entity_trie.whitelist_types.pkl"
     else:
         relevant_qids = None
-        out_file = "data/entity_trie.tmp.pkl"
+        out_file = "data/entity_trie.pkl"
     print("\nread article titles...")
     titles = get_wikipedia_article_titles(relevant_qids)
     print("\nload model...")
     model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
-    print("\ncreate trie...")
+    print("create trie...")
     trie = get_trie(model, titles)
     print(f"\nsave trie at {out_file}...")
     with open(out_file, "wb") as f:

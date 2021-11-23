@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import spacy
 
@@ -8,14 +8,14 @@ from get_trie import load_trie
 
 
 class Model:
-    def __init__(self, yago: bool, entities_constrained: bool):
+    def __init__(self, yago: bool, entities_constrained: bool, entity_types: Optional[str] = None):
         if yago:
             model_name = "models/fairseq_e2e_entity_linking_aidayago"
         else:
             model_name = "models/fairseq_e2e_entity_linking_wiki_abs"
         self.model = GENRE.from_pretrained(model_name).eval()
         if entities_constrained:
-            self.trie = load_trie()
+            self.trie = load_trie(entity_types)
         else:
             self.trie = None
         self.spacy_model = None
