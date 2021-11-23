@@ -21,7 +21,6 @@ def get_relevant_entity_qids() -> Set[str]:
 def get_wikipedia_article_titles(relevant_qids: Optional[Set[str]] = None):
     url_prefix = "https://en.wikipedia.org/wiki/"
     titles = []
-    print("read lines...")
     for line in open("data/qid_to_wikipedia_url.tsv"):
         values = line[:-1].split("\t")
         if relevant_qids:
@@ -33,6 +32,8 @@ def get_wikipedia_article_titles(relevant_qids: Optional[Set[str]] = None):
         title = unquote(title)
         title = title.replace("_", " ")
         titles.append(title)
+        if len(titles) % 1000 == 0:
+            print(f"\r{len(titles)} titles", end="")
     return titles
 
 
@@ -60,9 +61,12 @@ def main(args):
     else:
         relevant_qids = None
         out_file = "data/entity_trie.tmp.pkl"
+    print("read article titles...")
     titles = get_wikipedia_article_titles(relevant_qids)
     model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
+    print("create trie...")
     trie = get_trie(model, titles)
+    print(f"save trie at {out_file}...")
     with open(out_file, "wb") as f:
         pickle.dump(trie, f)
 
