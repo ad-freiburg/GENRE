@@ -15,8 +15,8 @@ def main(args):
 
     trie = None
     if args.constrained:
-        print("load trie...")
-        trie = load_trie()
+        print(f"load trie for types '{args.types}'...")
+        trie = load_trie(types=args.types)
 
     while True:
         text = input("> ")
@@ -38,5 +38,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--yago", action="store_true")
     parser.add_argument("--constrained", action="store_true")
+    parser.add_argument("-types", "-t", dest="types", choices=("whitelist", "classic"), default=None)
     args = parser.parse_args()
     main(args)
