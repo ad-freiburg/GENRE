@@ -26,6 +26,7 @@ def filter_mention(mention: str) -> bool:
 
 
 def create_mentions_to_candidates_dict():
+    entities = read_entities()
     mentions_to_candidates_dict = {}
     for line in open("data/dalab/prob_yago_crosswikis_wikipedia_p_e_m.txt"):
         values = line[:-1].split("\t")
@@ -38,8 +39,10 @@ def create_mentions_to_candidates_dict():
                 continue
             candidate = get_after_second_comma(candidate_data)
             candidate = parse_article_title(candidate)
-            candidates.append(candidate)
-        mentions_to_candidates_dict[mention] = candidates
+            if candidate in entities:
+                candidates.append(candidate)
+        if len(candidates) > 0:
+            mentions_to_candidates_dict[mention] = candidates
     return mentions_to_candidates_dict
 
 
@@ -51,22 +54,50 @@ def print_mentions_to_candidates():
         print(print_str)
 
 
-def build_mention_trie():
+def build_mentions_trie():
     print("read mentions...")
     mentions = []
     for line in open("data/dalab/mentions_to_candidates.tsv"):
         mention = line.split("\t")[0]
         mentions.append(mention)
+    print(f"{len(mentions)} mentions")
     print("load model...")
     model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
     print("build trie...")
-    mention_trie = Trie([
-        model.encode(" {}".format(m))[1:].tolist()
-        for m in mentions
-    ])
-    print("save trie...")
+    mention_trie = Trie()
+    for m in mentions:
+        encoded = model.encode(" {}".format(m))[1:].tolist()
+        mention_trie.add(encoded)
+        if len(mention_trie) % 1000 == 0:
+            print(f"\r{len(mention_trie)} mentions", end = "")
+    print("\nsave trie...")
     with open("data/dalab/mentions_trie.pkl", "wb") as f:
         pickle.dump(mention_trie, f)
+
+
+def read_entities():
+    entities = set()
+    for line in open("data/dalab/entities_universe.txt"):
+        values = line[:-1].split("\t")
+        entity = parse_article_title(values[1])
+        entities.add(entity)
+    return entities
+
+
+def get_mentions_trie():
+    with open("data/dalab/mentions_trie.pkl", "rb") as f:
+        trie = pickle.load(f)
+    return trie
+
+
+def get_mentions_to_candidates_dict():
+    mentions_to_candidates_dict = {}
+    for line in open("data/dalab/mentions_to_candidates.tsv"):
+        values = line[:-1].split("\t")
+        mention = values[0]
+        candidates = values[1:]
+        mentions_to_candidates_dict[mention] = candidates
+    return mentions_to_candidates_dict
 
 
 if __name__ == "__main__":
@@ -74,4 +105,5 @@ if __name__ == "__main__":
     if mode == "candidates":
         print_mentions_to_candidates()
     elif mode == "mentions":
-        build_mention_trie()
+        sys.setrecursionlimit(10000)
+        build_mentions_trie()

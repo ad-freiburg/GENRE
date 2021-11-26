@@ -5,10 +5,12 @@ import spacy
 from genre.fairseq_model import GENRE
 from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq as get_prefix_allowed_tokens_fn
 from get_trie import load_trie
+from dalab_data import get_mentions_trie, get_mentions_to_candidates_dict
 
 
 class Model:
-    def __init__(self, yago: bool, entities_constrained: bool, entity_types: Optional[str] = None):
+    def __init__(self, yago: bool, entities_constrained: bool, entity_types: Optional[str] = None,
+                 dalab_data: bool = False):
         if yago:
             model_name = "models/fairseq_e2e_entity_linking_aidayago"
         else:
@@ -18,6 +20,10 @@ class Model:
             self.trie = load_trie(entity_types)
         else:
             self.trie = None
+        self.dalab_data = dalab_data
+        if dalab_data:
+            self.mentions_trie = get_mentions_trie()
+            self.mentions_to_candidates_dict = get_mentions_to_candidates_dict()
         self.spacy_model = None
 
     def _ensure_spacy(self):
@@ -52,9 +58,17 @@ class Model:
 
         sentences = [text]
 
-        prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(self.model,
-                                                                sentences,
-                                                                candidates_trie=self.trie)
+        if self.dalab_data:
+            prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
+                self.model,
+                sentences,
+                mention_trie=self.mentions_trie,
+                mention_to_candidates_dict=self.mentions_to_candidates_dict
+            )
+        else:
+            prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(self.model,
+                                                                    sentences,
+                                                                    candidates_trie=self.trie)
 
         result = self.model.sample(
             sentences,

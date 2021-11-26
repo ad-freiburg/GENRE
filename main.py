@@ -4,7 +4,7 @@ from model import Model
 
 
 def main(args):
-    model = Model(yago=args.yago, entities_constrained=args.constrained, entity_types=args.types)
+    model = Model(yago=args.yago, entities_constrained=args.constrained, entity_types=args.types, dalab_data=args.dalab)
 
     with open(args.output_file, "w") as out_file:
         for line in open(args.input_file):
@@ -46,5 +46,6 @@ if __name__ == "__main__":
     parser.add_argument("--constrained", action="store_true")
     parser.add_argument("--sentences", "-s", dest="split_sentences", action="store_true")
     parser.add_argument("-types", "-t", dest="types", choices=("whitelist", "classic"), default=None)
+    parser.add_argument("--dalab", action="store_true")
     args = parser.parse_args()
     main(args)
