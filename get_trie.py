@@ -15,17 +15,20 @@ CLASSIC_ENTITY_TYPES = {
 }
 
 
+WD_PREFIX = "wd:"
+
+
 def get_relevant_entity_qids(classic_types: bool = False) -> Set[str]:
     qids = set()
-    for line in open("data/qid_to_relevant_types.tsv"):
-        values = line[:-1].split("\t")
-        qid = values[0]
+    for line in open("data/entity-types.ttl"):
+        values = line.split()
+        qid = values[0][len(WD_PREFIX):]
         if classic_types:
-            entity_types = set(values[1].split(";"))
-            if len(CLASSIC_ENTITY_TYPES.intersection(entity_types)) == 0:
+            entity_type = values[1][len(WD_PREFIX):]
+            if entity_type not in CLASSIC_ENTITY_TYPES:
                 continue
         qids.add(qid)
-        if len(qids) % 1000 == 0:
+        if len(qids) % 10000 == 0:
             print(f"\r{len(qids)} QIDs", end="")
     return qids
 
@@ -44,7 +47,7 @@ def get_wikipedia_article_titles(relevant_qids: Optional[Set[str]] = None):
         title = unquote(title)
         title = title.replace("_", " ")
         titles.append(title)
-        if len(titles) % 1000 == 0:
+        if len(titles) % 10000 == 0:
             print(f"\r{len(titles)} titles", end="")
     return titles
 
