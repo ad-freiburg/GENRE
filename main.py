@@ -26,7 +26,7 @@ def main(args):
                 if len(paragraph) == 0:
                     prediction = paragraph
                 else:
-                    prediction = model.predict_paragraph(paragraph, args.split_sentences)
+                    prediction = model.predict_paragraph(paragraph, args.split_sentences, args.split_long)
                     print("PARAGRAPH:", prediction)
                 predicted_paragraphs.append(prediction)
 
@@ -47,5 +47,6 @@ if __name__ == "__main__":
     parser.add_argument("--sentences", "-s", dest="split_sentences", action="store_true")
     parser.add_argument("-types", "-t", dest="types", choices=("whitelist", "classic"), default=None)
     parser.add_argument("--dalab", action="store_true")
+    parser.add_argument("--split_long", action="store_true")
     args = parser.parse_args()
     main(args)

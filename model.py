@@ -30,15 +30,37 @@ class Model:
         if self.spacy_model is None:
             self.spacy_model = spacy.load("en_core_web_sm")
 
-    def _split_sentences(self,text: str) -> List[str]:
+    def _split_sentences(self, text: str) -> List[str]:
         self._ensure_spacy()
         doc = self.spacy_model(text)
         sentences = [sent.text for sent in doc.sents]
         return sentences
 
-    def predict_paragraph(self, text: str, split_sentences: bool) -> str:
+    def _split_long_texts(self, text: str) -> List[str]:
+        MAX_WORDS = 150
+        split_parts = []
+        sentences = self._split_sentences(text)
+        part = ""
+        n_words = 0
+        for sentence in sentences:
+            sent_words = len(sentence.split())
+            if len(part) > 0 and n_words + sent_words > MAX_WORDS:
+                split_parts.append(part)
+                part = ""
+                n_words = 0
+            if len(part) > 0:
+                part += " "
+            part += sentence
+            n_words += sent_words
+        if len(part) > 0:
+            split_parts.append(part)
+        return split_parts
+
+    def predict_paragraph(self, text: str, split_sentences: bool, split_long_texts: bool) -> str:
         if split_sentences:
             sentences = self._split_sentences(text)
+        elif split_long_texts:
+            sentences = self._split_long_texts(text)
         else:
             sentences = [text]
         predictions = []
