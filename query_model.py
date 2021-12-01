@@ -1,4 +1,6 @@
 import argparse
+import torch
+import time
 
 from genre.fairseq_model import GENRE
 from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq as get_prefix_allowed_tokens_fn
@@ -13,6 +15,10 @@ def main(args):
         model_name = "models/fairseq_e2e_entity_linking_wiki_abs"
     print(f"read model from {model_name}...")
     model = GENRE.from_pretrained(model_name).eval()
+    
+    if torch.cuda.is_available():
+        print("move model to GPU...")
+        model = model.cuda()
 
     trie = None
     if args.dalab:
@@ -28,6 +34,8 @@ def main(args):
     while True:
         text = input("> ")
         sentences = [text]
+        
+        start_time = time.time()
 
         if args.dalab:
             prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
@@ -44,9 +52,12 @@ def main(args):
             prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
         )
 
+        runtime = time.time() - start_time
+
         print("== result ==")
         for beam in result[0]:
             print(beam)
+        print(f"{runtime:.4f} seconds")
 
 
 if __name__ == "__main__":
