@@ -30,7 +30,6 @@ def main(args):
         print(f"load trie for types '{args.types}'...")
         trie = load_trie(types=args.types)
 
-
     while True:
         text = input("> ")
         sentences = [text]
@@ -55,6 +54,9 @@ def main(args):
         runtime = time.time() - start_time
 
         print("== result ==")
+        print(result)
+
+        print("== beams ==")
         for beam in result[0]:
             print(beam)
         print(f"{runtime:.4f} seconds")

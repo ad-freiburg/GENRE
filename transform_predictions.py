@@ -23,7 +23,7 @@ def compute_labels(paragraph: str, labeled_paragraph: str, start_position: int):
     labels = []
     while p_pos < len(paragraph):
         p_char = paragraph[p_pos]
-        if p_char in " []":
+        if p_char in " []\n":
             p_pos += 1
             continue
         l_char = labeled_paragraph[l_pos]
