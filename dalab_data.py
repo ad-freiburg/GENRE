@@ -1,5 +1,6 @@
 import sys
 import pickle
+from tqdm import tqdm
 
 from genre.fairseq_model import GENRE
 from genre.trie import Trie
@@ -54,10 +55,10 @@ def print_mentions_to_candidates():
         print(print_str)
 
 
-def build_mentions_trie():
+def build_mentions_trie(mentions_candidates_file, output_file):
     print("read mentions...")
     mentions = []
-    for line in open("data/dalab/mentions_to_candidates.tsv"):
+    for line in open(mentions_candidates_file):
         mention = line.split("\t")[0]
         mentions.append(mention)
     print(f"{len(mentions)} mentions")
@@ -65,14 +66,16 @@ def build_mentions_trie():
     model = GENRE.from_pretrained("models/fairseq_e2e_entity_linking_wiki_abs").eval()
     print("build trie...")
     mention_trie = Trie()
-    for m in mentions:
+    for m in tqdm(mentions):
         encoded = model.encode(" {}".format(m))[1:].tolist()
         mention_trie.add(encoded)
-        if len(mention_trie) % 1000 == 0:
-            print(f"\r{len(mention_trie)} mentions", end = "")
     print("\nsave trie...")
-    with open("data/dalab/mentions_trie.pkl", "wb") as f:
+    with open(output_file, "wb") as f:
         pickle.dump(mention_trie, f)
+
+
+def build_dalab_mentions_trie():
+    build_mentions_trie("data/dalab/mentions_to_candidates.tsv", "data/dalab/mentions_trie.pkl")
 
 
 def read_entities():
@@ -84,8 +87,8 @@ def read_entities():
     return entities
 
 
-def get_mentions_trie():
-    with open("data/dalab/mentions_trie.pkl", "rb") as f:
+def get_mentions_trie(path="data/dalab/mentions_trie.pkl"):
+    with open(path, "rb") as f:
         trie = pickle.load(f)
     return trie
 
@@ -106,4 +109,4 @@ if __name__ == "__main__":
         print_mentions_to_candidates()
     elif mode == "mentions":
         sys.setrecursionlimit(10000)
-        build_mentions_trie()
+        build_dalab_mentions_trie()

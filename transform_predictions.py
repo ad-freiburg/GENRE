@@ -27,7 +27,7 @@ def compute_labels(paragraph: str, labeled_paragraph: str, start_position: int):
             p_pos += 1
             continue
         l_char = labeled_paragraph[l_pos]
-        if l_char == " ":
+        if l_char in " \n":
             l_pos += 1
         elif l_char == p_char:
             l_pos += 1
@@ -82,23 +82,17 @@ def main(args):
             position = 0
 
             labels = []
-
-            for paragraph, labeled_paragraph in zip(text.split("\n"), genre_text.split("\n")):
-                if paragraph == "" or paragraph == "<onlyinclude></onlyinclude>":
-                    wikipedia_labels = []
-                else:
-                    wikipedia_labels = compute_labels(paragraph, labeled_paragraph, position)
-                position += len(paragraph) + 1
-                for start, end, label in wikipedia_labels:
-                    qid = label
-                    if label in mapping:
-                        qid = mapping[label]
-                    elif label in redirects:
-                        redirected = redirects[label]
-                        if redirected in mapping:
-                            qid = mapping[redirected]
-                    print(start, end, label, qid)
-                    labels.append(create_label_json(start, end, qid))
+            wikipedia_labels = compute_labels(text, genre_text, position)
+            for start, end, label in wikipedia_labels:
+                qid = label
+                if label in mapping:
+                    qid = mapping[label]
+                elif label in redirects:
+                    redirected = redirects[label]
+                    if redirected in mapping:
+                        qid = mapping[redirected]
+                print(start, end, label, qid)
+                labels.append(create_label_json(start, end, qid))
             data["entity_mentions"] = labels
             out_file.write(json.dumps(data) + "\n")
 

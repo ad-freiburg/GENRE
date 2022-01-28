@@ -6,12 +6,12 @@ import torch.cuda
 from genre.fairseq_model import GENRE
 from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq as get_prefix_allowed_tokens_fn
 from get_trie import load_trie
-from dalab_data import get_mentions_trie, get_mentions_to_candidates_dict
-
+from dalab_data import get_mentions_trie, get_mentions_to_candidates_dict as dalab_mentions_to_candidates_dict
+from aida_data import get_mentions_to_candidates_dict as aida_dalab_mentions_to_candidates_dict
 
 class Model:
     def __init__(self, yago: bool, entities_constrained: bool, entity_types: Optional[str] = None,
-                 dalab_data: bool = False):
+                 aida_dalab_data: bool = False, dalab_data: bool = False):
         if yago:
             model_name = "models/fairseq_e2e_entity_linking_aidayago"
         else:
@@ -24,10 +24,13 @@ class Model:
             self.trie = load_trie(entity_types)
         else:
             self.trie = None
-        self.dalab_data = dalab_data
-        if dalab_data:
+        self.mentions_constrained = dalab_data or aida_dalab_data
+        if aida_dalab_data:
+            self.mentions_trie = get_mentions_trie("data/aida/mentions_trie.aida+dalab.pkl")
+            self.mentions_to_candidates_dict = aida_dalab_mentions_to_candidates_dict()
+        elif dalab_data:
             self.mentions_trie = get_mentions_trie()
-            self.mentions_to_candidates_dict = get_mentions_to_candidates_dict()
+            self.mentions_to_candidates_dict = dalab_mentions_to_candidates_dict()
         self.spacy_model = None
 
     def _ensure_spacy(self):
@@ -119,7 +122,7 @@ class Model:
 
     def _query_model(self, text):
         sentences = [text]
-        if self.dalab_data:
+        if self.mentions_constrained:
             prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
                 self.model,
                 sentences,
