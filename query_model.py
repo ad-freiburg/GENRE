@@ -6,7 +6,7 @@ from genre.fairseq_model import GENRE
 from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq as get_prefix_allowed_tokens_fn
 from get_trie import load_trie
 from dalab_data import get_mentions_trie, get_mentions_to_candidates_dict
-
+from aida_data import get_mentions_to_candidates_dict as aida_dalab_mentions_to_candidates_dict
 
 def main(args):
     if args.yago:
@@ -21,7 +21,12 @@ def main(args):
         model = model.cuda()
 
     trie = None
-    if args.dalab:
+    if args.aida_dalab:
+        print("load mentions trie...")
+        mentions_trie = get_mentions_trie(path="data/aida/mentions_trie.aida+dalab.pkl")
+        print("load candidates dict...")
+        mentions_to_candidates_dict = aida_dalab_mentions_to_candidates_dict()
+    elif args.dalab:
         print("load mentions trie...")
         mentions_trie = get_mentions_trie()
         print("load candidates dict...")
@@ -68,5 +73,6 @@ if __name__ == "__main__":
     parser.add_argument("--constrained", action="store_true")
     parser.add_argument("-types", "-t", dest="types", choices=("whitelist", "classic"), default=None)
     parser.add_argument("--dalab", action="store_true")
+    parser.add_argument("--aida_dalab", action="store_true")
     args = parser.parse_args()
     main(args)

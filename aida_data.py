@@ -81,6 +81,7 @@ if __name__ == "__main__":
         for mention in candidates:
             print(mention, len(candidates[mention]), candidates[mention])
     elif step == "trie":
+        sys.setrecursionlimit(10000)
         build_mentions_trie("data/aida/mentions_to_candidates.aida+dalab.tsv", "data/aida/mentions_trie.aida+dalab.pkl")
     else:
         print("\\u0021", "\u0021", decode_unicode("\\u0021"))
