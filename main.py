@@ -9,7 +9,9 @@ def main(args):
                   aida_dalab_data=args.aida_dalab, dalab_data=args.dalab)
 
     with open(args.output_file, "w") as out_file:
-        for line in open(args.input_file):
+        for article_i, line in enumerate(open(args.input_file)):
+            if args.article and article_i != args.article:
+                continue
             article = json.loads(line)
             text = article["text"]
             if args.eval_span and "evaluation_span" in article:
@@ -57,5 +59,6 @@ if __name__ == "__main__":
     parser.add_argument("--split_long", action="store_true")
     parser.add_argument("--eval_span", action="store_true")
     parser.add_argument("--split_iter", action="store_true")
+    parser.add_argument("--article", type=int, default=None, required=False)
     args = parser.parse_args()
     main(args)
