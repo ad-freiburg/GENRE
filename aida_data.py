@@ -64,7 +64,7 @@ def create_mentions_to_candidates_dict():
 
 def get_mentions_to_candidates_dict():
     mentions_to_candidates = {}
-    for line in open("data/aida/mentions_to_candidates.aida+dalab.tsv"):
+    for line in open("data/aida/mentions_to_candidates.aida+dalab.filtered.tsv"):
         vals = line[:-1].split("\t")
         mention = vals[0]
         candidates = vals[1:]
@@ -82,7 +82,8 @@ if __name__ == "__main__":
             print(mention, len(candidates[mention]), candidates[mention])
     elif step == "trie":
         sys.setrecursionlimit(10000)
-        build_mentions_trie("data/aida/mentions_to_candidates.aida+dalab.tsv", "data/aida/mentions_trie.aida+dalab.pkl")
+        build_mentions_trie("data/aida/mentions_to_candidates.aida+dalab.filtered.tsv",
+                            "data/aida/mentions_trie.aida+dalab.filtered.pkl")
     else:
         print("\\u0021", "\u0021", decode_unicode("\\u0021"))
         print("\\u01c3", "\u01c3", decode_unicode("\\u01c3"))

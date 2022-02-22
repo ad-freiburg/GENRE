@@ -26,7 +26,7 @@ class Model:
             self.trie = None
         self.mentions_constrained = dalab_data or aida_dalab_data
         if aida_dalab_data:
-            self.mentions_trie = get_mentions_trie("data/aida/mentions_trie.aida+dalab.pkl")
+            self.mentions_trie = get_mentions_trie("data/aida/mentions_trie.aida+dalab.filtered.pkl")
             self.mentions_to_candidates_dict = aida_dalab_mentions_to_candidates_dict()
         elif dalab_data:
             self.mentions_trie = get_mentions_trie()

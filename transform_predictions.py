@@ -61,12 +61,13 @@ def get_mapping():
 
 
 def main(args):
-    print("read mapping...")
-    mapping = get_mapping()
+    if not args.wikipedia:
+        print("read mapping...")
+        mapping = get_mapping()
 
-    print("load redirects...")
-    with open("data/link_redirects.pkl", "rb") as f:
-        redirects = pickle.load(f)
+        print("load redirects...")
+        with open("data/link_redirects.pkl", "rb") as f:
+            redirects = pickle.load(f)
 
     if args.output_file:
         output_file = args.output_file
@@ -85,12 +86,15 @@ def main(args):
             wikipedia_labels = compute_labels(text, genre_text, position)
             for start, end, label in wikipedia_labels:
                 qid = label
-                if label in mapping:
-                    qid = mapping[label]
-                elif label in redirects:
-                    redirected = redirects[label]
-                    if redirected in mapping:
-                        qid = mapping[redirected]
+                if args.wikipedia:
+                    qid = "https://en.wikipedia.org/wiki/" + label.replace(" ", "_")
+                else:
+                    if label in mapping:
+                        qid = mapping[label]
+                    elif label in redirects:
+                        redirected = redirects[label]
+                        if redirected in mapping:
+                            qid = mapping[redirected]
                 print(start, end, label, qid)
                 labels.append(create_label_json(start, end, qid))
             data["entity_mentions"] = labels
@@ -101,5 +105,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="input_file", type=str)
     parser.add_argument("-o", dest="output_file", type=str, default=None)
+    parser.add_argument("--wikipedia", action="store_true")
     args = parser.parse_args()
     main(args)
