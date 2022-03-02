@@ -5,13 +5,14 @@ import torch.cuda
 
 from genre.fairseq_model import GENRE
 from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq as get_prefix_allowed_tokens_fn
-from get_trie import load_trie
-from dalab_data import get_mentions_trie, get_mentions_to_candidates_dict as dalab_mentions_to_candidates_dict
-from aida_data import get_mentions_to_candidates_dict as aida_dalab_mentions_to_candidates_dict
+from helper_pickle import pickle_load
+
 
 class Model:
-    def __init__(self, yago: bool, entities_constrained: bool, entity_types: Optional[str] = None,
-                 aida_dalab_data: bool = False, dalab_data: bool = False):
+    def __init__(self,
+                 yago: bool,
+                 mention_trie: Optional[str],
+                 mention_to_candidates_dict: Optional[str]):
         if yago:
             model_name = "models/fairseq_e2e_entity_linking_aidayago"
         else:
@@ -20,17 +21,8 @@ class Model:
         if torch.cuda.is_available():
             print("move model to GPU...")
             self.model = self.model.cuda()
-        if entities_constrained:
-            self.trie = load_trie(entity_types)
-        else:
-            self.trie = None
-        self.mentions_constrained = dalab_data or aida_dalab_data
-        if aida_dalab_data:
-            self.mentions_trie = get_mentions_trie("data/aida/mentions_trie.aida+dalab.filtered.pkl")
-            self.mentions_to_candidates_dict = aida_dalab_mentions_to_candidates_dict()
-        elif dalab_data:
-            self.mentions_trie = get_mentions_trie()
-            self.mentions_to_candidates_dict = dalab_mentions_to_candidates_dict()
+        self.mention_trie = pickle_load(mention_trie)
+        self.mention_to_candidates_dict = pickle_load(mention_to_candidates_dict)
         self.spacy_model = None
 
     def _ensure_spacy(self):
@@ -122,17 +114,12 @@ class Model:
 
     def _query_model(self, text):
         sentences = [text]
-        if self.mentions_constrained:
-            prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
-                self.model,
-                sentences,
-                mention_trie=self.mentions_trie,
-                mention_to_candidates_dict=self.mentions_to_candidates_dict
-            )
-        else:
-            prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(self.model,
-                                                                    sentences,
-                                                                    candidates_trie=self.trie)
+        prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
+            self.model,
+            sentences,
+            mention_trie=self.mention_trie,
+            mention_to_candidates_dict=self.mention_to_candidates_dict
+        )
         result = self.model.sample(
             sentences,
             prefix_allowed_tokens_fn=prefix_allowed_tokens_fn,
@@ -144,13 +131,7 @@ class Model:
 
         result = self._query_model(text)
 
-        try:
-            text = result[0][0]["text"]
-        except:
-            text = text
-
-        if isinstance(text, list):
-            text = "".join(text)
+        text = result[0][0]["text"]
         return text
 
 

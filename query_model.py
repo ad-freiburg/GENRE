@@ -4,9 +4,8 @@ import time
 
 from genre.fairseq_model import GENRE
 from genre.entity_linking import get_end_to_end_prefix_allowed_tokens_fn_fairseq as get_prefix_allowed_tokens_fn
-from get_trie import load_trie
-from dalab_data import get_mentions_trie, get_mentions_to_candidates_dict
-from aida_data import get_mentions_to_candidates_dict as aida_dalab_mentions_to_candidates_dict
+from helper_pickle import pickle_load
+
 
 def main(args):
     if args.yago:
@@ -20,20 +19,8 @@ def main(args):
         print("move model to GPU...")
         model = model.cuda()
 
-    trie = None
-    if args.aida_dalab:
-        print("load mentions trie...")
-        mentions_trie = get_mentions_trie(path="data/aida/mentions_trie.aida+dalab.pkl")
-        print("load candidates dict...")
-        mentions_to_candidates_dict = aida_dalab_mentions_to_candidates_dict()
-    elif args.dalab:
-        print("load mentions trie...")
-        mentions_trie = get_mentions_trie()
-        print("load candidates dict...")
-        mentions_to_candidates_dict = get_mentions_to_candidates_dict()
-    elif args.constrained:
-        print(f"load trie for types '{args.types}'...")
-        trie = load_trie(types=args.types)
+    mention_trie = pickle_load(args.trie)
+    mention_to_candidates_dict= pickle_load(args.candidates)
 
     while True:
         text = input("> ")
@@ -41,15 +28,12 @@ def main(args):
         
         start_time = time.time()
 
-        if args.dalab:
-            prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
-                model,
-                sentences,
-                mention_trie=mentions_trie,
-                mention_to_candidates_dict=mentions_to_candidates_dict
-            )
-        else:
-            prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(model, sentences, candidates_trie=trie)
+        prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
+            model,
+            sentences,
+            mention_trie=mention_trie,
+            mention_to_candidates_dict=mention_to_candidates_dict
+        )
 
         result = model.sample(
             sentences,
@@ -70,9 +54,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--yago", action="store_true")
-    parser.add_argument("--constrained", action="store_true")
-    parser.add_argument("-types", "-t", dest="types", choices=("whitelist", "classic"), default=None)
-    parser.add_argument("--dalab", action="store_true")
-    parser.add_argument("--aida_dalab", action="store_true")
+    parser.add_argument("--trie", type=str, default=None, required=False)
+    parser.add_argument("--candidates", type=str, default=None, required=False)
     args = parser.parse_args()
     main(args)
