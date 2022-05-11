@@ -1,8 +1,7 @@
 # How to use:
-#   docker build --tag genre:latest .
-#   docker run --rm -it genre:latest /bin/bash
-#   docker run --rm -it -v $(pwd)/tests:/GENRE/genre/tests genre:latest /bin/bash
-#   pytest genre/tests
+#   docker build -t genre .
+#   docker run --rm -v /nfs/students/matthias-hertel/genre-reproducibility-data/data:/GENRE/data -v /nfs/students/matthias-hertel/genre-reproducibility-data/models:/GENRE/models -it genre bash
+
 FROM python:3.8
 
 WORKDIR /GENRE/
@@ -31,5 +30,3 @@ RUN apt-get install -y vim
 COPY . genre
 RUN pip install -e ./genre
 
-
-# python3 genre/main.py --yago -i genre/example_article.jsonl -o tmp.jsonl --split_iter
