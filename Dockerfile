@@ -7,16 +7,7 @@ FROM python:3.8
 
 WORKDIR /GENRE/
 
-RUN apt-get update && \
-    apt-get install axel -y
-
-RUN mkdir data && \
-    axel -n 20 http://dl.fbaipublicfiles.com/GENRE/kilt_titles_trie_dict.pkl -o data
-
-RUN mkdir models && \
-    axel -n 20 http://dl.fbaipublicfiles.com/GENRE/fairseq_wikipage_retrieval.tar.gz && \
-    tar -xvf fairseq_wikipage_retrieval.tar.gz --directory models && \
-    rm fairseq_wikipage_retrieval.tar.gz
+RUN apt-get update
 
 # Install PyTorch
 RUN pip install torch --no-cache-dir
@@ -28,6 +19,17 @@ RUN pip install pytest requests --no-cache-dir
 RUN git clone -b fixing_prefix_allowed_tokens_fn --single-branch https://github.com/nicola-decao/fairseq.git
 RUN pip install -e ./fairseq
 
+# Install spacy
+RUN pip install spacy
+RUN python3 -m spacy download en_core_web_sm
+
+# Install vim (can be removed later)
+RUN apt-get update
+RUN apt-get install -y vim
+
 # Install genre
 COPY . genre
 RUN pip install -e ./genre
+
+
+# python3 genre/main.py --yago -i genre/example_article.jsonl -o tmp.jsonl --split_iter
