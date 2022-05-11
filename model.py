@@ -12,7 +12,8 @@ class Model:
     def __init__(self,
                  yago: bool,
                  mention_trie: Optional[str],
-                 mention_to_candidates_dict: Optional[str]):
+                 mention_to_candidates_dict: Optional[str],
+                 candidates_trie: Optional[str]):
         if yago:
             model_name = "models/fairseq_e2e_entity_linking_aidayago"
         else:
@@ -23,6 +24,7 @@ class Model:
             self.model = self.model.cuda()
         self.mention_trie = pickle_load(mention_trie)
         self.mention_to_candidates_dict = pickle_load(mention_to_candidates_dict)
+        self.candidates_trie = pickle_load(candidates_trie)
         self.spacy_model = None
 
     def _ensure_spacy(self):
@@ -118,7 +120,8 @@ class Model:
             self.model,
             sentences,
             mention_trie=self.mention_trie,
-            mention_to_candidates_dict=self.mention_to_candidates_dict
+            mention_to_candidates_dict=self.mention_to_candidates_dict,
+            candidates_trie=self.candidates_trie
         )
         result = self.model.sample(
             sentences,

@@ -6,8 +6,9 @@ from model import Model
 def main(args):
     print("load model...")
     model = Model(yago=args.yago,
-                  mention_trie=args.trie,
-                  mention_to_candidates_dict=args.candidates)
+                  mention_trie=args.mention_trie,
+                  mention_to_candidates_dict=args.mention_to_candidates_dict,
+                  candidates_trie=args.candidates_trie)
 
     with open(args.output_file, "w") as out_file:
         for article_i, line in enumerate(open(args.input_file)):
@@ -52,13 +53,13 @@ if __name__ == "__main__":
     parser.add_argument("-i", dest="input_file", type=str)
     parser.add_argument("-o", dest="output_file", type=str)
     parser.add_argument("--yago", action="store_true")
-    parser.add_argument("--constrained", action="store_true")
     parser.add_argument("--sentences", "-s", dest="split_sentences", action="store_true")
     parser.add_argument("--split_long", action="store_true")
     parser.add_argument("--eval_span", action="store_true")
     parser.add_argument("--split_iter", action="store_true")
     parser.add_argument("--article", type=int, default=None, required=False)
-    parser.add_argument("--trie", type=str, default=None, required=False)
-    parser.add_argument("--candidates", type=str, default=None, required=False)
+    parser.add_argument("--mention_trie", type=str, default=None, required=False)
+    parser.add_argument("--mention_to_candidates_dict", type=str, default=None, required=False)
+    parser.add_argument("--candidates_trie", type=str, default=None, required=False)
     args = parser.parse_args()
     main(args)
