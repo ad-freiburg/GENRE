@@ -115,7 +115,7 @@ Each line in the output will contain a key "entity_mentions"
 with the predicted mention spans and Wikidata QIDs.
 
 ```
-python3 transform_predictions out.jsonl -o out.qids.jsonl
+python3 transform_predictions.py out.jsonl -o out.qids.jsonl
 ```
 
 ## Additional information
