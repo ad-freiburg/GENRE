@@ -51,7 +51,7 @@ def compute_labels(paragraph: str, labeled_paragraph: str, start_position: int):
 def get_mapping():
     prefix = "https://en.wikipedia.org/wiki/"
     mapping = {}
-    for line in open("data/qid_to_wikipedia_url.tsv"):
+    for line in open("data/elevant/qid_to_wikipedia_url.tsv"):
         line = line[:-1]
         vals = line.split("\t")
         qid = vals[0]
@@ -66,7 +66,7 @@ def main(args):
         mapping = get_mapping()
 
         print("load redirects...")
-        with open("data/link_redirects.pkl", "rb") as f:
+        with open("data/elevant/link_redirects.pkl", "rb") as f:
             redirects = pickle.load(f)
 
     if args.output_file:

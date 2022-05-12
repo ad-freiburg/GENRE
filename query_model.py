@@ -20,7 +20,7 @@ def main(args):
         model = model.cuda()
 
     mention_trie = pickle_load(args.trie)
-    mention_to_candidates_dict= pickle_load(args.candidates)
+    mention_to_candidates_dict = pickle_load(args.candidates)
 
     while True:
         text = input("> ")
