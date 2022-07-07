@@ -141,3 +141,5 @@ python3 create_mentions_trie.py
 
 The commands 2 and 3 can be called with the argument `--dalab`
 to only include entities from the Dalab entity universe (~470k entities).
+Note: This is currently out of sync with the files you download with `make download-data`.
+The best results on AIDA-CoNLL were achieved with the downloadable files.
