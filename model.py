@@ -115,6 +115,8 @@ class Model:
         return text
 
     def _query_model(self, text):
+        if len(text) > 0 and text[0] != " ":
+            text = " " + text  # necessary to detect mentions in the beginning of a sentence
         sentences = [text]
         prefix_allowed_tokens_fn = get_prefix_allowed_tokens_fn(
             self.model,
@@ -134,7 +136,7 @@ class Model:
 
         result = self._query_model(text)
 
-        text = result[0][0]["text"]
+        text = result[0][0]["text"].strip()
         return text
 
 
