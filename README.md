@@ -95,7 +95,7 @@ Each line in the output will contain a key "entity_mentions"
 with the predicted mention spans and Wikidata QIDs.
 
 ```
-python3 transform_predictions out.jsonl -o out.qids.jsonl
+python3 transform_predictions.py out.jsonl -o out.qids.jsonl
 ```
 
 ## Additional information
@@ -116,7 +116,7 @@ We were not able to reproduce the results from the wiki_abs model,
 see [issue 72](https://github.com/facebookresearch/GENRE/issues/72)
 of the original repository.
 
-### Create mentions and candidates
+### Create mention trie and candidate dict
 
 To create the mention trie and candidate sets by yourself, use the following steps.
 
@@ -140,4 +140,4 @@ python3 create_mentions_trie.py
 ```
 
 The commands 2 and 3 can be called with the argument `--dalab`
-to only include entities from the Dalab entity universe (~470k entities). 
+to only include entities from the Dalab entity universe (~470k entities).
