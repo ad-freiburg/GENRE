@@ -1,6 +1,6 @@
 # Reproducible GENRE end-to-end entity linking
 
-## 0. Introduction
+## Introduction
 
 [GENRE](https://github.com/facebookresearch/GENRE) is an open-source autogenerative entity linker.
 Best results are achieved with fixed mentions and mention-to-candidate mappings.
@@ -9,8 +9,8 @@ This repository is an attempt to create this data following the paper as close a
 The Docker setup allows to run GENRE on given texts with few commands.
 
 The difference to the original repository is the following:
-1. Scripts to create a mention trie and a mention-to-candidate dictionary.
-2. Implementation of a split strategy for long texts.
+1. We provide pre-computed mention tries and a mention-to-candidate dictionaries.
+2. We implemented a split strategy for long texts.
 
 ## 1. Installation
 
@@ -27,9 +27,16 @@ Download the models:
 make download-models
 ```
 
+Download the precomputed mention tries and candidate dictionaries:
+
+```
+make download-data
+```
+
 ### Option 1: Install with Docker
 
-(The base image currently does not support GPU usage.)
+The base image currently does not support GPU usage.
+For GPU support, use a virtual environment (see instructions below) or a suitable base image. 
 
 ```
 docker build -t genre .
@@ -55,24 +62,69 @@ docker run --rm -v $PWD/data:/GENRE/data \
  -v $PWD/models:/GENRE/models -it genre bash
 ```
 
-Alternatively, if you are on a machine from the Algorithms & Datastructures Chair,
-start the container with the following command.
-Pre-computed entity data will be mounted.
-You can skip step 3 and directly continue with step 4.
+## 3. Run GENRE
+
+Run GENRE on a file specified with the `-i` argument.
+The file must be in Article JSONL format (introduced by Elevant).
+That is, each line contains a JSON with a key "text".
+See the file *example_article.jsonl* for an example.
 
 ```
-docker run --rm -v /nfs/students/matthias-hertel/genre-reproducibility-data/data:/GENRE/data \
- -v /nfs/students/matthias-hertel/genre-reproducibility-data/models:/GENRE/models \
- -it genre bash
+python3 main.py --yago -i example_article.jsonl \
+ -o out.jsonl --split_iter --mention_trie data/mention_trie.pkl \
+ --mention_to_candidates_dict data/mention_to_candidates_dict.pkl
 ```
 
-## 3. Create mentions and candidates
+The result will be written to the file specified with `-o` and
+stored under the key "GENRE" in each line's JSON.
+
+Use `--mention_trie data/mention_trie.dalab.pkl --mention_to_candidates_dict data/mention_to_candidates_dict.dalab.pkl`
+to restrict the entities and candidates to the entity universe from DALAB
+(this setting works best on the AIDA-CoNLL benchmark).
+
+Remove the argument `--yago` to use the wiki_abs model 
+(trained on Wikipedia abstracts only).
+However, we were not able to reproduce the good results from the paper for that model
+(`--yago` is better on all benchmarks).
+
+## 4. Translate predictions to Wikidata QIDs
+
+Run this command to transform the output by GENRE into the Article JSONL format used by Elevant.
+Each predicted entity will be translated to a Wikidata QID (if possible).
+Each line in the output will contain a key "entity_mentions"
+with the predicted mention spans and Wikidata QIDs.
+
+```
+python3 transform_predictions out.jsonl -o out.qids.jsonl
+```
+
+## Additional information
+
+### Split strategy
+
+For long texts, GENRE either throws an error, returns an empty result,
+or an incomplete result (the labelled text is shorter than the input text).
+When this happens, we split the text into n sentences using SpaCy,
+and feed GENRE with parts of n/k sentences, where k is increased incrementally by 1 until
+all parts are short enough to be processed.
+
+### Results
+
+See https://elevant.cs.uni-freiburg.de for results on various benchmarks.
+
+We were not able to reproduce the results from the wiki_abs model,
+see [issue 72](https://github.com/facebookresearch/GENRE/issues/72)
+of the original repository.
+
+### Create mentions and candidates
+
+To create the mention trie and candidate sets by yourself, use the following steps.
 
 1. Download entity and candidate data from Dalab, AIDA
 and Elevant (Wikipedia-to-Wikidata mapping, needed for step 5). 
 
 ```
-make download-data
+make download-additional-data
 ```
 
 2. Create the mention-to-candidate dictionary.
@@ -89,49 +141,3 @@ python3 create_mentions_trie.py
 
 The commands 2 and 3 can be called with the argument `--dalab`
 to only include entities from the Dalab entity universe (~470k entities). 
-
-## 4. Run GENRE
-
-Run GENRE on a file specified with the `-i` argument.
-The file must be in Article JSONL format (introduced by Elevant).
-That is, each line contains a JSON with a key "text".
-
-```
-python3 main.py --yago -i example_article.jsonl \
- -o out.jsonl --split_iter --mention_trie data/mention_trie.pkl \
- --mention_to_candidates_dict data/mention_to_candidates_dict.pkl
-```
-
-Remove the argument`--yago` to use the wiki_abs model 
-(trained on Wikipedia abstracts only).
-
-The result for each text will be written to the file specified with `-o` and
-stored under the key "GENRE" in each line's JSON.
-
-## 5. Translate predictions to Wikidata QIDs
-
-Run this command to transform the output into Article JSONL.
-Each line in the output will contain a key "entity_mentions"
-with the predicted mention spans and Wikidata QIDs.
-
-```
-python3 transform_predictions out.jsonl -o out.qids.jsonl
-```
-
-## Additional information
-
-### Split strategy
-
-For long texts, GENRE either throws an error, returns an empty result,
-or an incomplete result (the labelled text is shorter than the input text).
-When this happens, we split the text into n sentences using SpaCy,
-and feed GENRE with parts of n/k sentences, with k = 2, 3, 4, ... until
-all parts are short enough to be processed.
-
-### Results
-
-See https://elevant.cs.uni-freiburg.de for results on various benchmarks.
-
-We were not able to reproduce the results from the wiki_abs model,
-see [issue 72](https://github.com/facebookresearch/GENRE/issues/72)
-of the original repository.
