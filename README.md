@@ -9,7 +9,7 @@ This repository is an attempt to create this data following the paper as close a
 The Docker setup allows to run GENRE on given texts with few commands.
 
 The difference to the original repository is the following:
-1. We provide pre-computed mention tries and a mention-to-candidate dictionaries.
+1. We provide pre-computed mention tries and mention-to-candidate dictionaries.
 2. We implemented a split strategy for long texts.
 
 ## 1. Installation
