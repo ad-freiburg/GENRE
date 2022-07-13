@@ -79,8 +79,7 @@ The result will be written to the file specified with `-o` and
 stored under the key "GENRE" in each line's JSON.
 
 Use `--mention_trie data/mention_trie.dalab.pkl --mention_to_candidates_dict data/mention_to_candidates_dict.dalab.pkl`
-to restrict the entities and candidates to the entity universe from DALAB
-(this setting works best on the AIDA-CoNLL benchmark).
+to restrict the entities and candidates to the entity universe from DALAB.
 
 Remove the argument `--yago` to use the wiki_abs model 
 (trained on Wikipedia abstracts only).
