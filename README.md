@@ -21,18 +21,6 @@ git clone git@github.com:hertelm/GENRE.git
 cd GENRE
 ```
 
-Download the models:
-
-```
-make download-models
-```
-
-Download the precomputed mention tries and candidate dictionaries:
-
-```
-make download-data
-```
-
 ### Option 1: Install with Docker
 
 The base image currently does not support GPU usage.
@@ -53,7 +41,32 @@ pip install -e ./fairseq
 python3 -m spacy download en_core_web_sm
 ```
 
-## 2. Start Docker container
+## 2. Download data
+
+Download the models:
+
+```
+make download-models
+```
+
+Download the precomputed mention tries and candidate dictionaries:
+
+```
+make download-data
+```
+
+The downloaded data contains the mention-to-candidates dictionary `mention_to_candidates_dict.pkl` (as a pickle file),
+with candidates for mentions from [Dalab](https://github.com/dalab/end2end_neural_el) and [Hoffart et al.](https://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/ambiverse-nlu/aida/downloads)
+(22.2M mentions, 4.2M unique entities, 1.32 candidates per mention on average).
+The trie containing the same mentions is `mention_trie.pkl`.
+
+The data also contains the smaller dictionary `mention_to_candidates_dict.dalab.pkl`
+(5.7M mentions, 469k unique entities, 1.27 candidates per mention on average),
+which contains only entities from Dalab (but mentions from both data sources),
+and the corresponding trie `mention_trie_dalab.pkl`.
+However, we got better results from using the larger entity set on all benchmarks except AIDA-CoNLL, where both variants were almost equal.
+
+## 3. Start Docker container
 
 (This step can be skipped when you chose the installation with virtualenv.)
 
@@ -62,7 +75,7 @@ docker run --rm -v $PWD/data:/GENRE/data \
  -v $PWD/models:/GENRE/models -it genre bash
 ```
 
-## 3. Run GENRE
+## 4. Run GENRE
 
 Run GENRE on a file specified with the `-i` argument.
 The file must be in Article JSONL format (introduced by Elevant).
@@ -87,7 +100,7 @@ Remove the argument `--yago` to use the wiki_abs model
 However, we were not able to reproduce the good results from the paper for that model
 (`--yago` is better on all benchmarks).
 
-## 4. Translate predictions to Wikidata QIDs
+## 5. Translate predictions to Wikidata QIDs
 
 Run this command to transform the output by GENRE into the Article JSONL format used by Elevant.
 Each predicted entity will be translated to a Wikidata QID (if possible).
