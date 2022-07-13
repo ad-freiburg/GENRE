@@ -9,7 +9,7 @@ This repository is an attempt to create this data following the paper as close a
 The Docker setup allows to run GENRE on given texts with few commands.
 
 The difference to the original repository is the following:
-1. We provide pre-computed mention tries and a mention-to-candidate dictionaries.
+1. We provide pre-computed mention tries and mention-to-candidate dictionaries.
 2. We implemented a split strategy for long texts.
 
 ## 1. Installation
@@ -92,8 +92,7 @@ The result will be written to the file specified with `-o` and
 stored under the key "GENRE" in each line's JSON.
 
 Use `--mention_trie data/mention_trie.dalab.pkl --mention_to_candidates_dict data/mention_to_candidates_dict.dalab.pkl`
-to restrict the entities and candidates to the entity universe from DALAB
-(this setting works best on the AIDA-CoNLL benchmark).
+to restrict the entities and candidates to the entity universe from DALAB.
 
 Remove the argument `--yago` to use the wiki_abs model 
 (trained on Wikipedia abstracts only).
