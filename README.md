@@ -64,7 +64,7 @@ The data also contains the smaller dictionary `mention_to_candidates_dict.dalab.
 (5.7M mentions, 469k unique entities, 1.27 candidates per mention on average),
 which contains only entities from Dalab (but mentions from both data sources),
 and the corresponding trie `mention_trie_dalab.pkl`.
-However, we got better results from using the larger entity set on all benchmarks except AIDA-CoNLL, where both variants were almost equal.
+However, we got better results from using the larger entity set on all benchmarks except Kore50.
 
 ## 3. Start Docker container
 
