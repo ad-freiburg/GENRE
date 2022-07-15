@@ -155,3 +155,7 @@ The commands 2 and 3 can be called with the argument `--dalab`
 to only include entities from the Dalab entity universe (~470k entities).
 Note: This is currently out of sync with the files you download with `make download-data`.
 The best results on AIDA-CoNLL were achieved with the downloadable files.
+
+### Citation
+
+If you use our work, please consider citing our upcoming paper about Elevant (will be put on ArXiv until August 1, 2022), as well as the GENRE paper.
