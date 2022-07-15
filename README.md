@@ -158,4 +158,4 @@ The best results on AIDA-CoNLL were achieved with the downloadable files.
 
 ### Citation
 
-If you use our work, please consider citing our upcoming paper about Elevant (will be put on ArXiv until August 1, 2022), as well as the GENRE paper.
+If you use our work, please consider citing our upcoming paper about [ELEVANT](github.com/ad-freiburg/elevant) (will be put on ArXiv until August 1, 2022), as well as the GENRE paper.
